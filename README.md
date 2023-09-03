@@ -21,23 +21,6 @@ var app = new Koa();
 
 //default configure options
 
-type IConfigureOPTS = {
-  strict?: boolean; //false
-  tokenId?: string;  //sub
-  store?: {
-    options?:any   //store.options store configure
-    type?: string; //memory
-    host: string; //127.0.0.1
-    port?: string; //redis:6379 memcached:11211
-    keyPrefix?: string; //"jwt-blacklist:"
-    get?: (key: string) => Promise<any>; //custom store get =>Promise
-    set?: (key: string, value: any) => Promise<any>; //custom store set => Promise
-  };
-};
-
-const options = {}
-
-configure(options:IConfigureOPTS)
 
 app.use(jwt({ secret:'shared-secret',isRevoked:isRevoked }).unless({
     path: [/^\/public/]
