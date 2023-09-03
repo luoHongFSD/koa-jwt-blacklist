@@ -10,4 +10,3 @@ async function createStore(store) {
     return require('./' + store.type)(store);
 }
 exports.default = createStore;
-//# sourceMappingURL=index.js.map

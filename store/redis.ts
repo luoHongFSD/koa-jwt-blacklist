@@ -22,7 +22,7 @@ export default function createStore(store){
    async set(key, value, lifetime) {
      try{
       await client.connect();
-      await client.set(key, value);
+      await client.set(key, JSON.stringify(value));
       if (lifetime) await client.expire(key, lifetime);
       await client.disconnect();
      }catch(error){
@@ -33,7 +33,7 @@ export default function createStore(store){
    async get(key) {
       try{
         await client.connect();
-        const value = await client.get(key)
+        const value = JSON.parse(await client.get(key))
         await client.disconnect();
         return value
       }catch(error){

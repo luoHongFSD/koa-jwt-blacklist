@@ -29,4 +29,3 @@ exports.default = createStore;
 function expire(key) {
     Reflect.deleteProperty(cache, key);
 }
-//# sourceMappingURL=memory.js.map

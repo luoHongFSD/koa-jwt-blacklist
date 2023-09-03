@@ -27,7 +27,6 @@ exports.purge = exports.revoke = exports.isRevoked = exports.configure = exports
 const debug_1 = require("./debug");
 const utils = __importStar(require("./utils"));
 // Defaults
-//var store = require('./store')({ type: 'memory' });
 let tokenId = "sub";
 let keyPrefix = "jwt-blacklist:";
 let strict = false;
@@ -69,9 +68,9 @@ exports.configure = configure;
 /**
  * Check if JWT token is revoked
  *
- * @param   {Object}   req  Express request object
- * @param   {Object}   user Express JWT user object
- * @param   {Function} fn   Callback function
+ * @param   {Object}   ctx  Koa ctx object
+ * @param   {Object}   user Koa JWT user object
+ * @param   {Function} token   Koa JWT token
  */
 async function isRevoked(ctx, user, token) {
     try {
@@ -101,7 +100,7 @@ exports.isRevoked = isRevoked;
  * Revoke a single JWT token
  *
  * @param   {Object}   user JWT user payload
- * @param   {Function} [fn] Optional callback function
+
  */
 exports.revoke = operation.bind(null, exports.TYPE.revoke);
 /**
@@ -138,4 +137,3 @@ async function operation(type, user) {
     let lifetime = user.exp ? user.exp - user.iat : 0;
     await store.set(key, data, lifetime);
 }
-//# sourceMappingURL=index.js.map

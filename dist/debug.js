@@ -9,4 +9,3 @@ function log(msg, meta) {
     console.log('koa-jwt-blacklist: ' + msg + ' ' + meta);
 }
 exports.log = log;
-//# sourceMappingURL=debug.js.map

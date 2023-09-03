@@ -45,4 +45,3 @@ function failure(details) {
 function issue(details) {
     (0, debug_1.log)('Memcached: ' + details.server + ' issue: ' + details.messages.join(' '));
 }
-//# sourceMappingURL=memcached.js.map

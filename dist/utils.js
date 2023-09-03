@@ -21,4 +21,3 @@ function nowInSeconds() {
     return Math.round(new Date().getTime() / 1000);
 }
 exports.nowInSeconds = nowInSeconds;
-//# sourceMappingURL=utils.js.map
