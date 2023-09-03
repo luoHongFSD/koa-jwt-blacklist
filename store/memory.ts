@@ -15,11 +15,7 @@ export default function createStore() {
      
     },
    async get (key) {
-      if(cache[key]){
-      return cache[key]
-      }else{
-        throw new Error('key is unf')
-      }
+       return cache[key]
     },
   };
 };

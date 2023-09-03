@@ -30,7 +30,7 @@ const utils = __importStar(require("./utils"));
 let tokenId = "sub";
 let keyPrefix = "jwt-blacklist:";
 let strict = false;
-let store = require("./store")({ type: "memory" });
+let store = require("./store").default({ type: "memory" });
 /**
  * Session revocation types:
  *
@@ -44,7 +44,7 @@ exports.TYPE = {
 function configure(opts = {}) {
     if (opts.store) {
         if (opts.store.type) {
-            store = require("./store")(opts.store);
+            store = require("./store").default(opts.store);
             if (opts.store.keyPrefix) {
                 utils.checkString(opts.store.keyPrefix, "keyPrefix");
                 keyPrefix = opts.store.keyPrefix;

@@ -11,7 +11,9 @@ npm install koa-jwt-blacklist
 ```
 var Koa = require('koa');
 var jwt = require('koa-jwt');
-var blacklist = require('koa-jwt-blacklist');
+
+import { configure,revoke,isRevoked } from 'koa-jwt-blacklist';
+
 
 
 var app = new Koa();
@@ -32,17 +34,19 @@ type IConfigureOPTS = {
     set?: (key: string, value: any) => Promise<any>; //custom store set => Promise
   };
 };
-const options = {}
-blacklist.configure(options:IConfigureOPTS)
 
-app.use(jwt({ secret:'shared-secret',isRevoked:blacklist.isRevoked }).unless({
+const options = {}
+
+configure(options:IConfigureOPTS)
+
+app.use(jwt({ secret:'shared-secret',isRevoked:isRevoked }).unless({
     path: [/^\/public/]
   }))
 
 
 //Logout
 app.use(async function(ctx){
-     blacklist.revoke(ctx.state.user)
+     await revoke(ctx.state.user)
      ctx.body = "logout"
 })
 

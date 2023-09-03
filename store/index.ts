@@ -4,8 +4,8 @@
 const TYPE = ['memory', 'memcached', 'redis'];
 
 
-export default async function createStore(store){
+export default function createStore(store){
   if (TYPE.indexOf(store.type) === -1) throw new Error('Invalid configuration [store.type] ' + store.type);
-  return require('./' + store.type)(store);
+  return require('./' + store.type).default(store);
 }
 
