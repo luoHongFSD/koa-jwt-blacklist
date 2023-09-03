@@ -70,7 +70,7 @@ exports.configure = configure;
  *
  * @param   {Object}   ctx  Koa ctx object
  * @param   {Object}   user Koa JWT user object
- * @param   {Function} token   Koa JWT token
+ * @param   {string}   token   Koa JWT token
  */
 async function isRevoked(ctx, user, token) {
     try {
@@ -107,7 +107,6 @@ exports.revoke = operation.bind(null, exports.TYPE.revoke);
  * Pure all existing JWT tokens
  *
  * @param   {Object}   user JWT user payload
- * @param   {Function} [fn] Optional callback function
  */
 exports.purge = operation.bind(null, exports.TYPE.purge);
 async function operation(type, user) {

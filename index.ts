@@ -19,7 +19,7 @@ export const TYPE = {
   purge: "purge",
 };
 
-export type IConfigureOPTS = {
+export type Configure = {
   strict?: boolean;
   tokenId?: string;
   store?: {
@@ -28,14 +28,14 @@ export type IConfigureOPTS = {
     host: string;
     port?: string;
     keyPrefix?: string;
-    get?: (key: string) => any;
-    set?: (key: string, value: any) => void;
+    get?: (key: string) => Promise<any>;
+    set?: (key: string, value: any) => Promise<void>;
   };
 };
 
 
 
-export function configure(opts: IConfigureOPTS = {}) {
+export function configure(opts: Configure = {}) {
   if (opts.store) {
     if (opts.store.type) {
       store = require("./store").default(opts.store);
@@ -67,7 +67,7 @@ export function configure(opts: IConfigureOPTS = {}) {
  *
  * @param   {Object}   ctx  Koa ctx object
  * @param   {Object}   user Koa JWT user object
- * @param   {Function} token   Koa JWT token
+ * @param   {string}   token   Koa JWT token
  */
 export async function isRevoked(ctx, user, token) {
   try {
@@ -100,7 +100,6 @@ export const revoke = operation.bind(null, TYPE.revoke);
  * Pure all existing JWT tokens
  *
  * @param   {Object}   user JWT user payload
- * @param   {Function} [fn] Optional callback function
  */
 export const purge = operation.bind(null, TYPE.purge);
 
