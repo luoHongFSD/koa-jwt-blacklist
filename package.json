@@ -2,7 +2,11 @@
   "name": "koa-jwt-blacklist",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\""
@@ -17,5 +21,9 @@
   "dependencies": {
     "memcached": "^2.2.2",
     "redis": "^4.6.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/luoHongFSD/koa-jwt-blacklist"
   }
 }
