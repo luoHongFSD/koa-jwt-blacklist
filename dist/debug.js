@@ -1,7 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.log = void 0;
+exports.log = exports.setLog = void 0;
 let debug = false;
+function setLog(bool) {
+    debug = bool;
+}
+exports.setLog = setLog;
 function log(msg, meta) {
     if (!debug)
         return;

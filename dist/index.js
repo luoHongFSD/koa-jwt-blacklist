@@ -63,6 +63,7 @@ function configure(opts = {}) {
         utils.checkBoolean(opts.strict, "strict");
         strict = opts.strict;
     }
+    (0, debug_1.setLog)(!!opts.debug);
 }
 exports.configure = configure;
 /**
@@ -76,19 +77,24 @@ async function isRevoked(ctx, user, token) {
     try {
         let revoked = strict;
         let id = user[tokenId];
-        if (!id)
+        if (!id) {
             throw new Error("JWT missing tokenId " + tokenId);
+        }
         let key = keyPrefix + id;
         const res = await store.get(key);
-        if (!res)
+        if (!res) {
             return revoked;
+        }
         (0, debug_1.log)("middleware [" + key + "]", res);
-        if (res[exports.TYPE.revoke] && res[exports.TYPE.revoke].indexOf(user.iat) !== -1)
+        if (res[exports.TYPE.revoke] && res[exports.TYPE.revoke].indexOf(user.iat) !== -1) {
             revoked = true;
-        else if (res[exports.TYPE.purge] >= user.iat)
+        }
+        else if (res[exports.TYPE.purge] >= user.iat) {
             revoked = true;
-        else
+        }
+        else {
             revoked = false;
+        }
         return revoked;
     }
     catch (error) {
@@ -110,13 +116,16 @@ exports.revoke = operation.bind(null, exports.TYPE.revoke);
  */
 exports.purge = operation.bind(null, exports.TYPE.purge);
 async function operation(type, user) {
-    if (!user)
+    if (!user) {
         throw new Error("User payload missing");
-    if (typeof user.iat !== "number")
+    }
+    if (typeof user.iat !== "number") {
         throw new Error("Invalid user.iat value");
+    }
     let id = user[tokenId];
-    if (!id)
+    if (!id) {
         throw new Error("JWT missing tokenId " + tokenId);
+    }
     let key = keyPrefix + id;
     const res = await store.get(key);
     let data = res || {};
@@ -127,8 +136,9 @@ async function operation(type, user) {
                 data[exports.TYPE.revoke].push(user.iat);
             }
         }
-        else
+        else {
             data[exports.TYPE.revoke] = [user.iat];
+        }
     }
     if (type === exports.TYPE.purge) {
         data[exports.TYPE.purge] = utils.nowInSeconds() - 1;

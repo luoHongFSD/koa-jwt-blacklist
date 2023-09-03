@@ -10,20 +10,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const redis_1 = __importDefault(require("redis"));
 const debug_1 = require("../debug");
 function createStore(store) {
-    const host = store.host || '127.0.0.1';
+    const host = store.host || "127.0.0.1";
     const port = store.port || 6379;
-    const options = store.options ? store.options : {
-        url: `redis://${host}:${port}`
-    };
+    const options = store.options
+        ? store.options
+        : {
+            url: `redis://${host}:${port}`,
+        };
     const client = redis_1.default.createClient(options);
-    client.on('error', error);
+    client.on("error", error);
     return {
         async set(key, value, lifetime) {
             try {
                 await client.connect();
                 await client.set(key, JSON.stringify(value));
-                if (lifetime)
+                if (lifetime) {
                     await client.expire(key, lifetime);
+                }
                 await client.disconnect();
             }
             catch (error) {
@@ -40,10 +43,10 @@ function createStore(store) {
             catch (error) {
                 throw error;
             }
-        }
+        },
     };
 }
 exports.default = createStore;
 function error(err) {
-    (0, debug_1.log)('Redis: ' + err);
+    (0, debug_1.log)("Redis: " + err);
 }

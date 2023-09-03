@@ -1,4 +1,4 @@
-import { log } from "./debug";
+import { log, setLog } from "./debug";
 import * as utils from "./utils";
 
 // Defaults
@@ -20,10 +20,11 @@ export const TYPE = {
 };
 
 export type Configure = {
+  debug?: boolean;
   strict?: boolean;
   tokenId?: string;
   store?: {
-    options?:any
+    options?: any;
     type?: string;
     host: string;
     port?: string;
@@ -32,8 +33,6 @@ export type Configure = {
     set?: (key: string, value: any) => Promise<void>;
   };
 };
-
-
 
 export function configure(opts: Configure = {}) {
   if (opts.store) {
@@ -60,6 +59,7 @@ export function configure(opts: Configure = {}) {
     utils.checkBoolean(opts.strict, "strict");
     strict = opts.strict;
   }
+  setLog(!!opts.debug);
 }
 
 /**
@@ -73,15 +73,22 @@ export async function isRevoked(ctx, user, token) {
   try {
     let revoked = strict;
     let id = user[tokenId];
-    if (!id) throw new Error("JWT missing tokenId " + tokenId);
+    if (!id) {
+      throw new Error("JWT missing tokenId " + tokenId);
+    }
     let key = keyPrefix + id;
     const res = await store.get(key);
-    if (!res) return revoked;
+    if (!res) {
+      return revoked;
+    }
     log("middleware [" + key + "]", res);
-    if (res[TYPE.revoke] && res[TYPE.revoke].indexOf(user.iat) !== -1)
+    if (res[TYPE.revoke] && res[TYPE.revoke].indexOf(user.iat) !== -1) {
       revoked = true;
-    else if (res[TYPE.purge] >= user.iat) revoked = true;
-    else revoked = false;
+    } else if (res[TYPE.purge] >= user.iat) {
+      revoked = true;
+    } else {
+      revoked = false;
+    }
     return revoked;
   } catch (error) {
     throw error;
@@ -104,10 +111,16 @@ export const revoke = operation.bind(null, TYPE.revoke);
 export const purge = operation.bind(null, TYPE.purge);
 
 async function operation(type, user) {
-  if (!user) throw new Error("User payload missing");
-  if (typeof user.iat !== "number") throw new Error("Invalid user.iat value");
+  if (!user){
+    throw new Error("User payload missing");
+  } 
+  if (typeof user.iat !== "number"){
+    throw new Error("Invalid user.iat value");
+  } 
   let id = user[tokenId];
-  if (!id) throw new Error("JWT missing tokenId " + tokenId);
+  if (!id){
+    throw new Error("JWT missing tokenId " + tokenId);
+  } 
   let key = keyPrefix + id;
   const res = await store.get(key);
   let data = res || {};
@@ -117,7 +130,9 @@ async function operation(type, user) {
       if (data[TYPE.revoke].indexOf(user.iat) === -1) {
         data[TYPE.revoke].push(user.iat);
       }
-    } else data[TYPE.revoke] = [user.iat];
+    } else {
+      data[TYPE.revoke] = [user.iat];
+    } 
   }
 
   if (type === TYPE.purge) {

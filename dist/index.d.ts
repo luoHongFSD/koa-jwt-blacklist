@@ -9,6 +9,7 @@ export declare const TYPE: {
     purge: string;
 };
 export type Configure = {
+    debug?: boolean;
     strict?: boolean;
     tokenId?: string;
     store?: {
