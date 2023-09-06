@@ -11,13 +11,10 @@ let store = require("./store").default({ type: "memory" });
  * Session revocation types:
  *
  *  - revoke: revoke all matched iat timestamps
- *  - purge:  revoke all timestamps older than iat
+
  */
 
-export const TYPE = {
-  revoke: "revoke",
-  purge: "purge",
-};
+
 
 export type Configure = {
   debug?: boolean;
@@ -67,9 +64,8 @@ export function configure(opts: Configure = {}) {
  *
  * @param   {Object}   ctx  Koa ctx object
  * @param   {Object}   user Koa JWT user object
- * @param   {string}   token   Koa JWT token
  */
-export async function isRevoked(ctx, user, token) {
+export async function isRevoked(ctx, user) {
   try {
     let revoked = strict;
     let id = user[tokenId];
@@ -82,14 +78,7 @@ export async function isRevoked(ctx, user, token) {
       return revoked;
     }
     log("middleware [" + key + "]", res);
-    if (res[TYPE.revoke] && res[TYPE.revoke].indexOf(user.iat) !== -1) {
-      revoked = true;
-    } else if (res[TYPE.purge] >= user.iat) {
-      revoked = true;
-    } else {
-      revoked = false;
-    }
-    return revoked;
+    return !!res;
   } catch (error) {
     throw error;
   }
@@ -101,43 +90,16 @@ export async function isRevoked(ctx, user, token) {
  * @param   {Object}   user JWT user payload
 
  */
-export const revoke = operation.bind(null, TYPE.revoke);
-
-/**
- * Pure all existing JWT tokens
- *
- * @param   {Object}   user JWT user payload
- */
-export const purge = operation.bind(null, TYPE.purge);
-
-async function operation(type, user) {
+export async function revoke(user) {
   if (!user){
     throw new Error("User payload missing");
   } 
-  if (typeof user.iat !== "number"){
-    throw new Error("Invalid user.iat value");
-  } 
+ 
   let id = user[tokenId];
   if (!id){
     throw new Error("JWT missing tokenId " + tokenId);
   } 
   let key = keyPrefix + id;
-  const res = await store.get(key);
-  let data = res || {};
-  log("revoke [" + key + "] " + user.iat, data);
-  if (type === TYPE.revoke) {
-    if (data[TYPE.revoke]) {
-      if (data[TYPE.revoke].indexOf(user.iat) === -1) {
-        data[TYPE.revoke].push(user.iat);
-      }
-    } else {
-      data[TYPE.revoke] = [user.iat];
-    } 
-  }
-
-  if (type === TYPE.purge) {
-    data[TYPE.purge] = utils.nowInSeconds() - 1;
-  }
-  let lifetime = user.exp ? user.exp - user.iat : 0;
-  await store.set(key, data, lifetime);
+  let lifetime = user.exp ? user.exp -  Math.floor(Date.now() / 1000) : 0;
+  await store.set(key, user.exp, lifetime<=0?0:lifetime);
 }

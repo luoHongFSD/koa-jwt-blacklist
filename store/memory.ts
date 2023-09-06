@@ -4,11 +4,14 @@ export default function createStore() {
   return {
     async set(key, value, lifetime) {
       try {
-        cache[key] = value;
-        if (lifetime) {
-          setTimeout(expire.bind(null, key), lifetime * 1000);
+        if(lifetime){
+          cache[key] = value;
+          setTimeout(expire.bind(null, key), lifetime * 1000); 
+          return value;
         }
-        return value;
+        
+        return null
+    
       } catch (error) {
         throw error;
       }

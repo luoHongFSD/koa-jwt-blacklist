@@ -21,12 +21,14 @@ export default function createStore(store) {
   return {
     async set(key, value, lifetime) {
       try {
-        await client.connect();
-        await client.set(key, JSON.stringify(value));
         if (lifetime) {
-          await client.expire(key, lifetime);
-        }
+        await client.connect();
+        await client.set(key, value);
+        await client.expire(key, lifetime);
         await client.disconnect();
+        return value
+      }
+      return null
       } catch (error) {
         throw error;
       }
@@ -34,7 +36,7 @@ export default function createStore(store) {
     async get(key) {
       try {
         await client.connect();
-        const value = JSON.parse(await client.get(key));
+        const value = await client.get(key);
         await client.disconnect();
         return value;
       } catch (error) {

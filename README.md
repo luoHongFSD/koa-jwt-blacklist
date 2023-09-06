@@ -37,11 +37,13 @@ app.use(async function(ctx){
 //Login
 
 import jsonwebtoken from 'jsonwebtoken'
+import { v4 as uuid } from "uuid"
 app.use(async function(ctx){
       const user = {userId:'userId'}
+      const tokenId = uuid()
       const token = jsonwebtoken.sign({
       data: user,
-      sub:user.userId,  //tokenId
+      sub: tokenId,  //tokenId
       // 设置 token 过期时间
       exp: Math.floor(Date.now() / 1000) + (60 * 60), // 60 seconds * 60 minutes = 1 hour
     }, 'shared-secret')
