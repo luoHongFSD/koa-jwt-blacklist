@@ -2,12 +2,8 @@
  * Session revocation types:
  *
  *  - revoke: revoke all matched iat timestamps
- *  - purge:  revoke all timestamps older than iat
+
  */
-export declare const TYPE: {
-    revoke: string;
-    purge: string;
-};
 export type Configure = {
     debug?: boolean;
     strict?: boolean;
@@ -28,19 +24,12 @@ export declare function configure(opts?: Configure): void;
  *
  * @param   {Object}   ctx  Koa ctx object
  * @param   {Object}   user Koa JWT user object
- * @param   {string}   token   Koa JWT token
  */
-export declare function isRevoked(ctx: any, user: any, token: any): Promise<boolean>;
+export declare function isRevoked(ctx: any, user: any): Promise<boolean>;
 /**
  * Revoke a single JWT token
  *
  * @param   {Object}   user JWT user payload
 
  */
-export declare const revoke: any;
-/**
- * Pure all existing JWT tokens
- *
- * @param   {Object}   user JWT user payload
- */
-export declare const purge: any;
+export declare function revoke(user: any): Promise<void>;

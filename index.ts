@@ -14,8 +14,6 @@ let store = require("./store").default({ type: "memory" });
 
  */
 
-
-
 export type Configure = {
   debug?: boolean;
   strict?: boolean;
@@ -73,12 +71,12 @@ export async function isRevoked(ctx, user) {
       throw new Error("JWT missing tokenId " + tokenId);
     }
     let key = keyPrefix + id;
-    const res = await store.get(key);
-    if (!res) {
+    const exp = await store.get(key);
+    if (!exp) {
       return revoked;
     }
-    log("middleware [" + key + "]", res);
-    return !!res;
+    log("middleware [" + key + "]", exp);
+    return Number(exp) - Math.floor(Date.now() / 1000) > 0;
   } catch (error) {
     throw error;
   }
@@ -91,15 +89,17 @@ export async function isRevoked(ctx, user) {
 
  */
 export async function revoke(user) {
-  if (!user){
+  if (!user) {
     throw new Error("User payload missing");
-  } 
- 
+  }
+
   let id = user[tokenId];
-  if (!id){
+  if (!id) {
     throw new Error("JWT missing tokenId " + tokenId);
-  } 
+  }
   let key = keyPrefix + id;
-  let lifetime = user.exp ? user.exp -  Math.floor(Date.now() / 1000) : 0;
-  await store.set(key, user.exp, lifetime<=0?0:lifetime);
+  let lifetime = user.exp ? user.exp - Math.floor(Date.now() / 1000) : 0;
+  if (lifetime > 0) {
+    await store.set(key, user.exp, lifetime);
+  }
 }

@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.purge = exports.revoke = exports.isRevoked = exports.configure = exports.TYPE = void 0;
+exports.revoke = exports.isRevoked = exports.configure = void 0;
 const debug_1 = require("./debug");
 const utils = __importStar(require("./utils"));
 // Defaults
@@ -31,16 +31,6 @@ let tokenId = "sub";
 let keyPrefix = "jwt-blacklist:";
 let strict = false;
 let store = require("./store").default({ type: "memory" });
-/**
- * Session revocation types:
- *
- *  - revoke: revoke all matched iat timestamps
- *  - purge:  revoke all timestamps older than iat
- */
-exports.TYPE = {
-    revoke: "revoke",
-    purge: "purge",
-};
 function configure(opts = {}) {
     if (opts.store) {
         if (opts.store.type) {
@@ -71,9 +61,8 @@ exports.configure = configure;
  *
  * @param   {Object}   ctx  Koa ctx object
  * @param   {Object}   user Koa JWT user object
- * @param   {string}   token   Koa JWT token
  */
-async function isRevoked(ctx, user, token) {
+async function isRevoked(ctx, user) {
     try {
         let revoked = strict;
         let id = user[tokenId];
@@ -81,21 +70,12 @@ async function isRevoked(ctx, user, token) {
             throw new Error("JWT missing tokenId " + tokenId);
         }
         let key = keyPrefix + id;
-        const res = await store.get(key);
-        if (!res) {
+        const exp = await store.get(key);
+        if (!exp) {
             return revoked;
         }
-        (0, debug_1.log)("middleware [" + key + "]", res);
-        if (res[exports.TYPE.revoke] && res[exports.TYPE.revoke].indexOf(user.iat) !== -1) {
-            revoked = true;
-        }
-        else if (res[exports.TYPE.purge] >= user.iat) {
-            revoked = true;
-        }
-        else {
-            revoked = false;
-        }
-        return revoked;
+        (0, debug_1.log)("middleware [" + key + "]", exp);
+        return Number(exp) - Math.floor(Date.now() / 1000) > 0;
     }
     catch (error) {
         throw error;
@@ -108,41 +88,18 @@ exports.isRevoked = isRevoked;
  * @param   {Object}   user JWT user payload
 
  */
-exports.revoke = operation.bind(null, exports.TYPE.revoke);
-/**
- * Pure all existing JWT tokens
- *
- * @param   {Object}   user JWT user payload
- */
-exports.purge = operation.bind(null, exports.TYPE.purge);
-async function operation(type, user) {
+async function revoke(user) {
     if (!user) {
         throw new Error("User payload missing");
-    }
-    if (typeof user.iat !== "number") {
-        throw new Error("Invalid user.iat value");
     }
     let id = user[tokenId];
     if (!id) {
         throw new Error("JWT missing tokenId " + tokenId);
     }
     let key = keyPrefix + id;
-    const res = await store.get(key);
-    let data = res || {};
-    (0, debug_1.log)("revoke [" + key + "] " + user.iat, data);
-    if (type === exports.TYPE.revoke) {
-        if (data[exports.TYPE.revoke]) {
-            if (data[exports.TYPE.revoke].indexOf(user.iat) === -1) {
-                data[exports.TYPE.revoke].push(user.iat);
-            }
-        }
-        else {
-            data[exports.TYPE.revoke] = [user.iat];
-        }
+    let lifetime = user.exp ? user.exp - Math.floor(Date.now() / 1000) : 0;
+    if (lifetime > 0) {
+        await store.set(key, user.exp, lifetime);
     }
-    if (type === exports.TYPE.purge) {
-        data[exports.TYPE.purge] = utils.nowInSeconds() - 1;
-    }
-    let lifetime = user.exp ? user.exp - user.iat : 0;
-    await store.set(key, data, lifetime);
 }
+exports.revoke = revoke;

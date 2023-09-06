@@ -6,9 +6,7 @@ function createStore() {
         async set(key, value, lifetime) {
             try {
                 cache[key] = value;
-                if (lifetime) {
-                    setTimeout(expire.bind(null, key), lifetime * 1000);
-                }
+                setTimeout(expire.bind(null, key), lifetime * 1000);
                 return value;
             }
             catch (error) {

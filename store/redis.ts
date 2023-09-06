@@ -21,14 +21,13 @@ export default function createStore(store) {
   return {
     async set(key, value, lifetime) {
       try {
-        if (lifetime) {
         await client.connect();
         await client.set(key, value);
         await client.expire(key, lifetime);
         await client.disconnect();
-        return value
-      }
-      return null
+        return value;
+
+        return null;
       } catch (error) {
         throw error;
       }

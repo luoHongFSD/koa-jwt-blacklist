@@ -6,11 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const memcached_1 = __importDefault(require("memcached"));
 const debug_1 = require("../debug");
 function createStore(store) {
-    const host = store.host || '127.0.0.1';
+    const host = store.host || "127.0.0.1";
     const port = store.port || 11211;
-    const memcached = new memcached_1.default(host + ':' + port, store.options || {});
-    memcached.on('issue', issue);
-    memcached.on('failure', failure);
+    const memcached = new memcached_1.default(host + ":" + port, store.options || {});
+    memcached.on("issue", issue);
+    memcached.on("failure", failure);
     return {
         set(key, value, lifetime) {
             return new Promise((resolve, rejected) => {
@@ -35,13 +35,16 @@ function createStore(store) {
                     }
                 });
             });
-        }
+        },
     };
 }
 exports.default = createStore;
 function failure(details) {
-    (0, debug_1.log)('Memcached: ' + details.server + ' went down due to: ' + details.messages.join(' '));
+    (0, debug_1.log)("Memcached: " +
+        details.server +
+        " went down due to: " +
+        details.messages.join(" "));
 }
 function issue(details) {
-    (0, debug_1.log)('Memcached: ' + details.server + ' issue: ' + details.messages.join(' '));
+    (0, debug_1.log)("Memcached: " + details.server + " issue: " + details.messages.join(" "));
 }
