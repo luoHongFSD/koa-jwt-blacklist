@@ -8,19 +8,39 @@ npm install koa-jwt-blacklist
 
 ## Example
 
+### default configure With a Memory driver
+
+```
+import { configure } from 'koa-jwt-blacklist';
+
+configure({
+  tokenId:'sub',
+  keyPrefix:'jwt-blacklist:'
+  driver:'memory',
+})
+```
+
+### configure With a Redis driver
+
+```
+import { configure } from 'koa-jwt-blacklist';
+import { Redis } from "ioredis";
+
+configure({
+  tokenId:'sub',
+  keyPrefix:'jwt-blacklist:'
+  driver:'redis',
+  redis:new Redis()
+})
+```
+
 ```
 var Koa = require('koa');
 var jwt = require('koa-jwt');
 
-import { configure,revoke,isRevoked } from 'koa-jwt-blacklist';
-
-
+import { revoke,isRevoked } from 'koa-jwt-blacklist';
 
 var app = new Koa();
-
-
-//default configure options
-
 
 app.use(jwt({ secret:'shared-secret',isRevoked:isRevoked }).unless({
     path: [/^\/public/]
